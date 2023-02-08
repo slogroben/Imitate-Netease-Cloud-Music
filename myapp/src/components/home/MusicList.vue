@@ -7,7 +7,7 @@
         </span>
     </div>
     <div class="listBox">
-        <van-swipe :loop="false" :width="120" :show-indicators="false">
+        <van-swipe :loop="false" :width="widthMatch" :show-indicators="false">
             <van-swipe-item  class="musicCard"  v-for="m in musicList"  :key="m.id">
                 <router-link :to="{path:'/itemMusic',query:{id:m.id}}">
                     <div class="ImgBox">
@@ -36,9 +36,13 @@ import { reactive } from '@vue/reactivity';
 import { onMounted } from '@vue/runtime-core';
 export default {
     name:'MusicList',
+    methods:{
+        
+    },
     setup(){
         const state=reactive({
-            musicList:[]
+            musicList:[],
+            widthMatch:120
         })
         async function getGendan(){
             let response=await api.getDayMusicList(10)
@@ -54,16 +58,25 @@ export default {
                 }
             })
         }
+        function widthMatch(){
+            let deviceWidth=document.documentElement.clientWidth||window.innerWidth
+            state.widthMatch=deviceWidth*0.35
+        }
         onMounted(async()=>{
             getGendan()
+            widthMatch()
         })
 
         return state
     }
 }
+
 </script>
 
 <style lang="less" scoped>
+.a{
+    width: 2.4rem;
+}
 .findMusic{
     margin: .2rem 0;
     .top{
@@ -90,11 +103,9 @@ export default {
         display: inline-block;
         overflow: hidden;
         .ImgBox{
-            width: 2rem;
-            height: 2rem;
             .playBox{
                 position: absolute;
-                right:.2rem;
+                right:.4rem;
                 z-index: 999;
                 .play{
                     width: .3rem;
@@ -109,12 +120,13 @@ export default {
                 }
             }
             .musicImg{
-                width: 2rem;
+                width: 100%;
                 height: 2rem;
             }
         }
         .musicName{
-            margin-top: .2rem;
+            width: 100%;
+            margin: .2rem 0 0 0;
             font-size:.26rem;
         }
     } 

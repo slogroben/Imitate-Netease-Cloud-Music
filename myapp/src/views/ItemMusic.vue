@@ -1,29 +1,44 @@
 <template>
-  <item-music-top :playlist="playlist"></item-music-top>
+  <div></div>
+  <ItemMusicTop :playlist="playlist" />
+  <item-music-list :playlist="playlist" :musiclist="musiclist"></item-music-list>
 </template>
 
 <script>
-import { reactive } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
 import { useRoute } from 'vue-router'
 import api from '../api'
 import ItemMusicTop from '../components/Item/ItemMusicTop.vue'
-export default {
-  components: { ItemMusicTop },
-    name:'ItemMusic',
-    setup(){
-        let state=reactive({
-            playlist:''
-        })
+import ItemMusicList from '../components/Item/ItemMusicList.vue'
 
-        onMounted(async ()=>{
-            let id=useRoute().query.id
-            let response=await api.getDayMusicListDetail(id)
-            state.playlist=response.data.playlist
-            sessionStorage.setItem('itemData',JSON.stringify(state))
-        })
-        return state
-    }
+export default {
+    name:'ItemMusic',
+    data(){
+      return{
+        playlist:'',
+        musiclist:''
+      }
+    },
+    components: { ItemMusicTop,ItemMusicList },
+    methods:{
+      async getPlayList(){
+        let id=useRoute().query.id
+        let response=await api.getDayMusicListDetail(id)
+        this.playlist=response.data.playlist
+        console.log(this.playlist);
+        sessionStorage.setItem('itemData',JSON.stringify(this.playlist))
+        this.getMusicList()
+      },
+      async getMusicList(){
+            console.log(this.playlist);
+            let id=this.playlist.id
+            let response=await api.getDayMusicListAllMusic(id,20,0)
+            this.musiclist=response.data
+            console.log(this.musiclist);
+          }
+    },
+    mounted(){
+      this.getPlayList()
+    },
 }
 </script>
 

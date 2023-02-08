@@ -1,6 +1,17 @@
 <template>
   <router-view/>
+  <foot-music></foot-music>
 </template>
+
+<script>
+import FootMusic from './views/FootMusic.vue';
+export default {
+   components:{
+    FootMusic
+   }
+}
+</script>
+
 
 <style lang="less">
 *{
