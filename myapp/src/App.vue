@@ -5,9 +5,12 @@
 
 <script>
 import FootMusic from './views/FootMusic.vue';
+import { Vue3Marquee } from 'vue3-marquee'
+import 'vue3-marquee/dist/style.css'
 export default {
    components:{
-    FootMusic
+    FootMusic,
+    Vue3Marquee
    }
 }
 </script>

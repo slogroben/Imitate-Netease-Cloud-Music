@@ -1,3 +1,4 @@
+import api from '@/api'
 import { createStore } from 'vuex'
 
 export default createStore({
@@ -92,7 +93,8 @@ export default createStore({
     ],
     playListIndex:0,
     playFlag:false,
-    showMusicView:false
+    showMusicView:false,
+    lyricList:''
   },
   getters: {
     playingMusic(context){
@@ -131,9 +133,16 @@ export default createStore({
     //
     modifyShowMusicView(context,showMusicView){
       context.showMusicView=showMusicView
-    }
+    },
+    modifyLyric(context,lyricList){
+      context.lyricList=lyricList
+    },
   },
   actions: {
+     getMusicLyric:async(context,id)=>{
+      let response=await api.getMusicLyric(id)
+      context.commit('modifyLyric',response.data) 
+  }
   },
   modules: {
   }

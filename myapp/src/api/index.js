@@ -22,7 +22,10 @@ const api={
     getMusic:async(id)=>{
         return service.getReq('/playlist/update/playcount?id='+id)
     },
-    
+    //获取歌词
+    getMusicLyric:async(id)=>{
+        return service.getReq('/lyric?id='+id)
+    },
     
 }
 

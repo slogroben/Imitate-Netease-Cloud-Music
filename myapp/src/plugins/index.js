@@ -1,6 +1,7 @@
-import { Swipe,SwipeItem,Button,Image,List,Cell,Popup } from "vant";
+import { Swipe,SwipeItem,Button,Image,List,Cell,Popup,Progress  } from "vant";
+
 let plugins=[
-    Swipe,SwipeItem,Button,Image,List,Cell,Popup
+    Swipe,SwipeItem,Button,Image,List,Cell,Popup,Progress 
 ]
 
 function getVant(app){

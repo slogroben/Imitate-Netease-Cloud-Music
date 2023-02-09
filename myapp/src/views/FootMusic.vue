@@ -42,26 +42,26 @@
     position="bottom"
     :style="{ height: '100%',width:'100%' }"
     >
-        <music-view></music-view>
+        <music-view @getMusic="getMusic"></music-view>
     </van-popup>
   </div>
 </template>
 
 <script>
 import api from '@/api'
-import { mapMutations, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import MusicView from './MusicView.vue'
 export default {
     data(){
         return{
-            
+            currentTime:0
         }
     },
     components:{
         MusicView
     },
     computed:{
-        ...mapState(['playList','playListIndex','playFlag','playingMusic','showMusicView'])
+        ...mapState(['playList','playListIndex','playFlag','playingMusic','showMusicView']),
     },
     watch:{
         'playListIndex':{
@@ -88,9 +88,10 @@ export default {
         }
     },
     methods:{
+        ...mapActions(['getMusicLyric']),
         ...mapMutations(['rePlayFlag','modifyPlayFlag','modifyShowMusicView']),
         async getMusic(){
-            let id=this.playList[this.playListIndex].al.id
+            let id=this.playList[this.playListIndex].id
             let audioPlay=this.$refs.audioPlay
             let response=await api.getMusic(id)
             if(response.data.code==200){
@@ -103,6 +104,9 @@ export default {
                 }
             }
         },
+    },
+    updated(){
+        this.getMusicLyric(this.playList[this.playListIndex].id)
     }
 }
 </script>
