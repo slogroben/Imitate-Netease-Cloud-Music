@@ -28,8 +28,8 @@
                     <img ref="img" class='musicImg' :src="playList[playListIndex].al.picUrl"/>
                 </div>
             </div>
-            <div class="lyricbox" @click="showLyric=false" v-if="showLyric&&lyricList">
-                {{ lyricList.lrc.lyric }}
+            <div class="lyricbox" @click="showLyric=false" v-if="showLyric&&lyricList&&lyric">
+                <p  v-for="l in lyric" :key="l">{{  l?l.lyricPart:'' }}</p>
             </div>
         </div>
         <div class="musicViewFooter">
@@ -61,7 +61,9 @@
                 </span>
             </div>
             <div class="footerCenter">
-                <van-progress :pivot-text="currentTime"/>
+                <span>{{ (parseInt((currentTime+'').split('.')[0]/60))+':'+parseInt((currentTime+'').split('.')[0]%60/10)+(currentTime+'').split('.')[0]%60%10 }}</span>
+                <van-progress class="progress" :stroke-width="0.02+'rem'" :percentage="currentTime/duration*100" pivot-text="" :show-pivot='false' />
+                <span>{{ parseInt(parseInt(duration)/60)+':'+parseInt((duration+'').split('.')[0]%60/10)+(duration+'').split('.')[0]%60%10 }}</span>
             </div>
             <div class="footerBotton">
                 <svg class="icon" aria-hidden="true">
@@ -90,7 +92,6 @@ import api from '@/api'
 export default {
     data(){
         return{
-            currentTime:0,
             showLyric:false
         }
     },
@@ -102,37 +103,70 @@ export default {
             handler(){
                 let needle=this.$refs.needle
                 let img=this.$refs.img
-                if(this.playFlag){
-                    needle.className='needlePlay'
-                    img.className='musicImg_active'
+                if(needle!=null&&img!=null){
+                    if(this.playFlag){
+                        needle.className='needlePlay'
+                        img.className='musicImg_active'
 
-                }else{
-                    needle.className='needle'
-                    img.className='musicImg'
+                    }else{
+                        needle.className='needle'
+                        img.className='musicImg'
+                    }
                 }
             },
             deep:true
+        },
+        'showLyric':{
+            handler(){
+                this.$emit('getMusicState')
+            }
         }
     },
     computed:{
-        ...mapState(['playList','playListIndex','playFlag','lyricList']),
+        ...mapState(['playList','playListIndex','playFlag','lyricList','duration']),
         ...mapGetters(['playingMusic']),
         lyric(){
             let arr=[]
-            if(this.lyricList){
-                console.log(JSON.stringify(this.lyricList.lrc.lyric));
-                arr=JSON.stringify(this.lyricList.lrc.lyric).split('\\n')
+            if(this.lyricList.lrc.lyric){
+                arr=JSON.stringify(this.lyricList.lrc.lyric).split('\\n').map((item,index)=>{
+                    if(item.split('[')[1]){
+                        let time=item.split('[')[1].split(']')[0]
+                        let lyricPart=item.split('[')[1].split(']')[1]
+                        let minute=time.split(':')[0]
+                        let second=time.split(':')[1].split('.')[0]
+                        let millisecond=time.split(':')[1].split('.')[1]
+                        time= parseInt(minute)*60+parseFloat(time.split(':')[1])
+                        return {
+                            time,
+                            lyricPart,
+                            minute,
+                            second,
+                            millisecond
+                        }
+                    }
+                    return false
+                })
+                console.log(arr);
+                arr.forEach((item,index,arr)=>{
+                    console.log(index,item,arr.length);
+                    if((arr.length-1)!=index){
+                        item.nextTime=arr[index+1].time
+                    }
+                })
                 return arr
             }
-
-        }
+            return arr
+        },
+        ...mapState(['currentTime'])
     },
     methods:{
         ...mapMutations(['modifyShowMusicView']),
-
     },   
     components:{
         Vue3Marquee
+   },
+   mounted(){
+        this.$emit('getMusicState')
    }
 }
 </script>
@@ -262,6 +296,16 @@ export default {
                 }
             }
         }
+        .lyricbox{
+            width: 100%;
+            height: 9rem;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            overflow: scroll;
+            line-height: .8rem;
+            color: #fff;
+        }
     }
     .musicViewFooter{
         padding: 0 .2rem;
@@ -274,6 +318,16 @@ export default {
         }
         .footerCenter{
             padding: .4rem 0;
+            display: flex;
+            justify-content: space-around;
+            .progress{
+                width: 80%;
+                margin: .16rem 0;
+            }
+            span{
+                color:#fff;
+                font-size: 0.24rem;
+            }
         }
         .footerBotton{
             display: flex;

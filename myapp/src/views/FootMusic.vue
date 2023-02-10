@@ -14,7 +14,6 @@
                 {{playList[playListIndex].name}}
                 <div class="ar">
                     <span v-for="ar in playList[playListIndex].ar" :key="ar">{{ar.name}}&nbsp;&nbsp;</span>
-                    
                 </div>
             </div>
         </div>
@@ -42,7 +41,7 @@
     position="bottom"
     :style="{ height: '100%',width:'100%' }"
     >
-        <music-view @getMusic="getMusic"></music-view>
+        <music-view @getMusic="getMusic" @getMusicState="getMusicState"></music-view>
     </van-popup>
   </div>
 </template>
@@ -89,24 +88,42 @@ export default {
     },
     methods:{
         ...mapActions(['getMusicLyric']),
-        ...mapMutations(['rePlayFlag','modifyPlayFlag','modifyShowMusicView']),
+        ...mapMutations(['rePlayFlag','modifyPlayFlag','modifyShowMusicView','modifyCurrentTime','modifyDuration']),
         async getMusic(){
             let id=this.playList[this.playListIndex].id
             let audioPlay=this.$refs.audioPlay
             let response=await api.getMusic(id)
+            this.modifyDuration(audioPlay.duration)
             if(response.data.code==200){
                 if(!this.playFlag){
                     this.rePlayFlag()
                     audioPlay.play()
+                    this.upadteCurrentTime()
                 }else{
                     this.rePlayFlag()
                     audioPlay.pause()
                 }
             }
         },
+        upadteCurrentTime(){
+            let audioPlay=this.$refs.audioPlay
+            if(this.playFlag){
+                setInterval(()=>{
+                    this.modifyCurrentTime(audioPlay.currentTime)
+                },1)
+            }
+        },
+        getMusicState(){
+            let audioPlay=this.$refs.audioPlay
+            this.modifyDuration(audioPlay.duration)
+            if(this.playFlag){
+                this.upadteCurrentTime()
+            }
+        }
     },
     updated(){
         this.getMusicLyric(this.playList[this.playListIndex].id)
+        this.getMusicState()
     }
 }
 </script>

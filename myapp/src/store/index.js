@@ -94,7 +94,9 @@ export default createStore({
     playListIndex:0,
     playFlag:false,
     showMusicView:false,
-    lyricList:''
+    lyricList:'',
+    currentTime:'',
+    duration:''
   },
   getters: {
     playingMusic(context){
@@ -131,11 +133,17 @@ export default createStore({
       context.playFlag=playFlag
     },
     //
-    modifyShowMusicView(context,showMusicView){
-      context.showMusicView=showMusicView
+    modifyShowMusicView(context,value){
+      context.showMusicView=value
     },
-    modifyLyric(context,lyricList){
-      context.lyricList=lyricList
+    modifyLyric(context,value){
+      context.lyricList=value
+    },
+    modifyCurrentTime(context,value){
+      context.currentTime=value
+    },
+    modifyDuration(context,value){
+      context.duration=value
     },
   },
   actions: {
