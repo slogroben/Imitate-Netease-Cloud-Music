@@ -145,6 +145,9 @@ export default createStore({
     modifyDuration(context,value){
       context.duration=value
     },
+    modifyPlayListIndex(context,value){
+      context.playListIndex=value
+    },
   },
   actions: {
      getMusicLyric:async(context,id)=>{

@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="musicViewCenter">
-            <div class="discbox" @click="showLyric=true" v-if="!showLyric">
+            <div class="discbox" @click="showLyric=true" v-show="!showLyric">
                 <div class="discBox"  v-if="!playList[playListIndex].al.picUrl">
                     <img class="needle" src="@/assets/needle-ab.png"/>
                     <img class="disc" src="@/assets/disc_default.png"/>
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="lyricbox" @click="showLyric=false" v-if="showLyric&&lyricList&&lyric">
-                <p  v-for="l in lyric" :key="l">{{  l?l.lyricPart:'' }}</p>
+                <p :class="currentTime<l.nextTime&&currentTime>l.time?'lyricActive':''"  v-for="l in lyric" :key="l">{{  l?l.lyricPart:'' }}</p>
             </div>
         </div>
         <div class="musicViewFooter">
@@ -61,12 +61,12 @@
                 </span>
             </div>
             <div class="footerCenter">
-                <span>{{ (parseInt((currentTime+'').split('.')[0]/60))+':'+parseInt((currentTime+'').split('.')[0]%60/10)+(currentTime+'').split('.')[0]%60%10 }}</span>
+                <span>{{ thisTime }}</span>
                 <van-progress class="progress" :stroke-width="0.02+'rem'" :percentage="currentTime/duration*100" pivot-text="" :show-pivot='false' />
-                <span>{{ parseInt(parseInt(duration)/60)+':'+parseInt((duration+'').split('.')[0]%60/10)+(duration+'').split('.')[0]%60%10 }}</span>
+                <span>{{ lastTime}}</span>
             </div>
             <div class="footerBotton">
-                <svg class="icon" aria-hidden="true">
+                <svg @click="$emit('preMusic')" class="icon" aria-hidden="true">
                     <use xlink:href="#icon-shangyishoushangyige"></use>
                 </svg>
                 <svg @click="$emit('getMusic') " v-if="this.playFlag" class="icon centerIcon" aria-hidden="true">
@@ -75,7 +75,7 @@
                 <svg @click="$emit('getMusic')" v-if="!this.playFlag" class="icon centerIcon"  aria-hidden="true">
                     <use xlink:href="#icon-bofang"></use>
                 </svg>
-                <svg class="icon" aria-hidden="true">
+                <svg @click="$emit('nextMusic')" class="icon" aria-hidden="true">
                     <use xlink:href="#icon-xiayigexiayishou"></use>
                 </svg>
             </div>
@@ -119,6 +119,40 @@ export default {
         'showLyric':{
             handler(){
                 this.$emit('getMusicState')
+                if(this.showLyric){
+                    let lyricbox=document.querySelector('.lyricbox')
+                    let lyricActive=document.querySelector('p.lyricActive')
+                    if(lyricActive&&lyricActive.offsetTop>200){
+                        lyricbox.scrollTop=lyricActive.offsetTop-200
+                    }
+                }else{
+                    let needle=this.$refs.needle
+                    let img=this.$refs.img
+                    if(needle!=null&&img!=null){
+                        if(this.playFlag){
+                            needle.className='needlePlay'
+                            img.className='musicImg_active'
+
+                        }else{
+                            needle.className='needle'
+                            img.className='musicImg'
+                        }
+                    }
+                }
+            }
+        },
+        'currentTime':{
+            handler(){
+                let lyricbox=document.querySelector('.lyricbox')
+                let lyricActive=document.querySelector('p.lyricActive')
+                if(lyricActive&&lyricActive.offsetTop>200){
+                    lyricbox.scrollTop=lyricActive.offsetTop-200
+                }
+            }
+        },
+        'playListIndex':{
+            handler(){
+                this.$emit('getMusicState')
             }
         }
     },
@@ -146,18 +180,27 @@ export default {
                     }
                     return false
                 })
-                console.log(arr);
-                arr.forEach((item,index,arr)=>{
-                    console.log(index,item,arr.length);
-                    if((arr.length-1)!=index){
+                arr.map((item,index,arr)=>{
+                    if(item&&(arr.length-2)!=index){
                         item.nextTime=arr[index+1].time
+                        return item
                     }
                 })
                 return arr
             }
             return arr
         },
-        ...mapState(['currentTime'])
+        ...mapState(['currentTime']),
+        thisTime(){
+            if(!this.currentTime){return '0:00'}
+            this.$emit('getMusicState')
+            return (parseInt((this.currentTime+'').split('.')[0]/60))+':'+parseInt((this.currentTime+'').split('.')[0]%60/10)+(this.currentTime+'').split('.')[0]%60%10
+        },
+        lastTime(){
+            if(!this.duration){return}
+            this.$emit('getMusicState')
+            return parseInt(parseInt(this.duration)/60)+':'+parseInt((this.duration+'').split('.')[0]%60/10)+(this.duration+'').split('.')[0]%60%10
+        }
     },
     methods:{
         ...mapMutations(['modifyShowMusicView']),
@@ -302,9 +345,16 @@ export default {
             display: flex;
             align-items: center;
             flex-direction: column;
+            white-space: normal;
+            text-overflow: clip;
             overflow: scroll;
             line-height: .8rem;
-            color: #fff;
+            color: #b9b4b4;
+            .lyricActive{
+                font-weight: 900;
+                font-size: .4rem;
+                color: #fff;
+            }
         }
     }
     .musicViewFooter{

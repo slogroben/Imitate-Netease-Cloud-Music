@@ -20,7 +20,7 @@
     </div>
     <div class="rightBox">
         <audio  ref="audioPlay" :src="'https://music.163.com/song/media/outer/url?id='+playList[playListIndex].id+'.mp3 '"></audio>
-        <svg class="icon" aria-hidden="true">
+        <svg class="icon" @click="preMusic" aria-hidden="true">
             <use xlink:href="#icon-shangyishoushangyige"></use>
         </svg>
         <svg @click="getMusic" v-if="this.playFlag" class="icon" aria-hidden="true">
@@ -29,7 +29,7 @@
         <svg @click="getMusic" v-if="!this.playFlag" class="icon" aria-hidden="true">
             <use xlink:href="#icon-bofang"></use>
         </svg>
-        <svg class="icon" aria-hidden="true">
+        <svg class="icon" @click="nextMusic" aria-hidden="true">
             <use xlink:href="#icon-xiayigexiayishou"></use>
         </svg>
         <svg class="icon" aria-hidden="true">
@@ -41,7 +41,7 @@
     position="bottom"
     :style="{ height: '100%',width:'100%' }"
     >
-        <music-view @getMusic="getMusic" @getMusicState="getMusicState"></music-view>
+        <music-view @getMusic="getMusic" @getMusicState="getMusicState" @preMusic="preMusic" @nextMusic="nextMusic"></music-view>
     </van-popup>
   </div>
 </template>
@@ -70,7 +70,8 @@ export default {
                 audioPlay.src=this.playList[this.playListIndex].id
                 audioPlay.play().catch(error=>{
                     audioPlay.play()
-                })
+                    
+                })                
             },
             deep:true,
         },
@@ -88,12 +89,11 @@ export default {
     },
     methods:{
         ...mapActions(['getMusicLyric']),
-        ...mapMutations(['rePlayFlag','modifyPlayFlag','modifyShowMusicView','modifyCurrentTime','modifyDuration']),
+        ...mapMutations(['rePlayFlag','modifyPlayFlag','modifyShowMusicView','modifyCurrentTime','modifyDuration','modifyPlayListIndex']),
         async getMusic(){
             let id=this.playList[this.playListIndex].id
             let audioPlay=this.$refs.audioPlay
             let response=await api.getMusic(id)
-            this.modifyDuration(audioPlay.duration)
             if(response.data.code==200){
                 if(!this.playFlag){
                     this.rePlayFlag()
@@ -110,14 +110,28 @@ export default {
             if(this.playFlag){
                 setInterval(()=>{
                     this.modifyCurrentTime(audioPlay.currentTime)
-                },1)
+                },100)
             }
         },
         getMusicState(){
+            
             let audioPlay=this.$refs.audioPlay
             this.modifyDuration(audioPlay.duration)
             if(this.playFlag){
                 this.upadteCurrentTime()
+            }
+        },
+        preMusic(){
+            if(this.playListIndex>0){
+                this.modifyPlayListIndex(this.playListIndex-1)
+            }
+        },
+        nextMusic(){
+            if(this.playListIndex<(this.playList.length-1)){
+                this.modifyPlayListIndex(this.playListIndex+1)
+            }
+            else{
+                this.modifyPlayListIndex(0)
             }
         }
     },

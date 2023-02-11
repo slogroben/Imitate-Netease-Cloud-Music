@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ItemMusic from '../views/ItemMusic.vue'
 import MusicView from '../views/MusicView.vue'
+import Search from '../views/Search.vue'
+
 
 
 
@@ -20,6 +22,11 @@ const routes = [
     path: '/musicview',
     name: 'musicview',
     component: MusicView
+  },
+  {
+    path: '/search',
+    name: 'search',
+    component: Search
   }
 ]
 
