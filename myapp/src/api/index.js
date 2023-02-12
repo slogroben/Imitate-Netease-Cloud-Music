@@ -26,6 +26,14 @@ const api={
     getMusicLyric:async(id)=>{
         return service.getReq('/lyric?id='+id)
     },
+    //获取默认搜索值
+    getSearchDefault:async()=>{
+        return service.getReq('/search/default')
+    },
+    //获取搜索值结果
+    getSearchList:async(keywords,type)=>{
+        return service.getReq('/cloudsearch?keywords='+keywords+'&type'+type)
+    },
     
 }
 

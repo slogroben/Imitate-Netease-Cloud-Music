@@ -50,6 +50,7 @@
 import api from '@/api'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import MusicView from './MusicView.vue'
+import { showToast } from 'vant'
 export default {
     data(){
         return{
@@ -124,6 +125,8 @@ export default {
         preMusic(){
             if(this.playListIndex>0){
                 this.modifyPlayListIndex(this.playListIndex-1)
+            }else{
+                this.modifyPlayListIndex(this.playList.length-1)
             }
         },
         nextMusic(){
